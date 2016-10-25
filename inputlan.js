@@ -26,6 +26,9 @@ server.on('request', function(req, res){
     case '/inputlan':
       (getAction('memo.js', 'show'))(req, res);
       break;
+    case '/index.html':
+      (getAction('memo.js', 'index'))(req, res);
+      break;
     default:
       render404();
       break;

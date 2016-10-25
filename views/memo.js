@@ -1,7 +1,38 @@
 exports.action = {
+  'index': index,
   'show': show,
   'create': create
 };
+
+function index(request, response){
+  var fs = require('fs');
+  fs.readFile(__dirname + '/index.html.ejs', 'utf-8', function(err, data){
+    if(err){
+    }
+    else{
+      var memos = '';
+      var db = require('../modules/db.js');
+      db = db.getDatabase();
+      
+      var query = 'select id, comment, start_on from memo';
+      db.all(query, [], function(err, rows){
+        for(var i = 0; i < rows.length; ++i){
+          memos += '<p>'
+                 + '<table><tr>'
+                 + '<td>' + rows[i].start_on + '</td>'
+                 + '<td><a href="/memo/edit?id=' + rows[i].id + '">編集</a></td>'
+                 + '</tr></table>'
+                 + '<pre>' + rows[i].comment + '</pre>'
+                 + '</p>';
+        }
+        response.writeHead(200, {'Content-Type':'text/html'});
+        response.write(data.replace('<!-- MEMO_LIST -->', memos));
+        response.end();
+        db.close();
+      });
+    }
+  });
+}
 
 function show(request, response){
   var fs = require('fs');
