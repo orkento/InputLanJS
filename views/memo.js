@@ -44,11 +44,11 @@ function show(request, response){
     else{
       var memos = '';
 
-      var today = new Date();
-      var yesterday = new Date();
-      var last_week = new Date();
+      var today      = new Date();
+      var yesterday  = new Date();
+      var last_week  = new Date();
       var last_month = new Date();
-      var last_year = new Date();
+      var last_year  = new Date();
       
       yesterday.setDate(today.getDate() - 1);
       last_week.setDate(today.getDate() - 7);
