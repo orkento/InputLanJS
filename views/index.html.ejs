@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>InputLan</title>
+  </head>
+  <body>
+    <form name="new_memo" action="memo" method="post">
+      <p>
+        <p>
+          <textarea name="memo[comment]"></textarea>
+        </p>
+        <p>
+          <label>学習開始日</label>
+          <input type="text" name="memo[date]"></input>
+          <input type="submit"></input>
+        </p>
+      </p>
+    </form>
+    <div id="memo_list">
+      <!-- MEMO_LIST -->
+    </div>
+    <script type="text/javascript">
+      window.onload = function(){
+        var date_text = document.getElementsByName('memo[date]');
+        var today = new Date();
+        date_text[0].value = ''
+                           + today.getFullYear()
+                           + '.' + (today.getMonth() + 1)
+                           + '.' + today.getDate();
+      };
+    </script>
+  </body>
+</html>
