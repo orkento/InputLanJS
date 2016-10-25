@@ -1,11 +1,11 @@
 exports.action = {
-  'index': index,
+  'show': show,
   'create': create
 };
 
-function index(request, response){
+function show(request, response){
   var fs = require('fs');
-  fs.readFile(__dirname + '/index.html.ejs', 'utf-8', function(err, data){
+  fs.readFile(__dirname + '/show.html.ejs', 'utf-8', function(err, data){
     if(err){
       var errors = require('./error.js');
       errors.error404(request, response);

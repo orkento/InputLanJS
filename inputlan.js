@@ -24,7 +24,7 @@ server.on('request', function(req, res){
   function responseToGET(){
     switch(req.url){
     case '/inputlan':
-      (getAction('memo.js', 'index'))(req, res);
+      (getAction('memo.js', 'show'))(req, res);
       break;
     default:
       render404();
