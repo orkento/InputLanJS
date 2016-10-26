@@ -35,52 +35,66 @@ function index(request, response){
 }
 
 function show(request, response){
-  var fs = require('fs');
-  fs.readFile(__dirname + '/show.html.ejs', 'utf-8', function(err, data){
-    if(err){
-      var errors = require('./error.js');
-      errors.error404(request, response);
-    }
-    else{
-      var memos = '';
-
-      var today      = new Date();
-      var yesterday  = new Date();
-      var last_week  = new Date();
-      var last_month = new Date();
-      var last_year  = new Date();
-      
-      yesterday.setDate(today.getDate() - 1);
-      last_week.setDate(today.getDate() - 7);
-      last_month.setMonth(today.getMonth() - 1);
-      last_year.setFullYear(today.getFullYear() - 1);
-      
-      today      = getDateString(today);
-      yesterday  = getDateString(yesterday);
-      last_week  = getDateString(last_week);
-      last_month = getDateString(last_month);
-      last_year  = getDateString(last_year);
-      
-      var sqlite3 = require('sqlite3');
-      var db = new sqlite3.Database('./db/inputlan.sqlite3');
-      var dates = [today, yesterday, last_week, last_month, last_year];
-      var query = 'select comment, start_on from memo where '
-                + 'start_on in(?, ?, ?, ?, ?)';
-                
-      db.all(query, dates, function(err, rows){
-        for(var i = 0; i < rows.length; ++i){
-          memos += '<p>'
-                 + '<p>' + rows[i].start_on + '</p>'
-                 + '<pre>' + rows[i].comment + '</pre>'
-                 + '</p>';
-        }
-        response.writeHead(200, {'Content-Type':'text/html'});
-        response.write(data.replace('<!-- MEMO_LIST -->', memos));
-        response.end();
-        db.close();
-      });
-    }
+  var layout = require('../modules/layout.js');
+  var page = null, memo = null, load_error = false;
+  var datas = null;
+  var rendering = false;
+  
+  layout.load('pages/show', function(error, data){
+    if(error) load_error = true;
+    else      page = data;
+    render();
   });
+  layout.load('parts/show/memo', function(error, data){
+    if(error) load_error = true;
+    else      memo = data;
+    render();
+  });
+  
+  function render(){
+    if(null == page || null == memo || rendering) return;
+    rendering = true;
+    if(load_error){
+      response.writeHead(404, {'Content-Type':'text/html'});
+      return response.end();
+    }
+    
+    var today      = new Date();
+    var yesterday  = new Date();
+    var last_week  = new Date();
+    var last_month = new Date();
+    var last_year  = new Date();
+    
+    yesterday.setDate(today.getDate() - 1);
+    last_week.setDate(today.getDate() - 7);
+    last_month.setMonth(today.getMonth() - 1);
+    last_year.setFullYear(today.getFullYear() - 1);
+    
+    today      = getDateString(today);
+    yesterday  = getDateString(yesterday);
+    last_week  = getDateString(last_week);
+    last_month = getDateString(last_month);
+    last_year  = getDateString(last_year);
+    
+    var dates = [today, yesterday, last_week, last_month, last_year];
+    var query = 'select comment, start_on from memo where '
+              + 'start_on in(?, ?, ?, ?, ?)';
+              
+    var db = require('../modules/db.js');
+    db = db.getDatabase();
+    db.all(query, dates, function(err, rows){
+      var memo_list = '';
+      
+      for(var i = 0; i < rows.length; ++i){
+        memo_list += memo.replace('<!-- start_on -->', rows[i].start_on)
+                         .replace('<!-- comment -->',  rows[i].comment);
+      }
+      response.writeHead(200, {'Content-Type':'text/html'});
+      response.write(page.replace('<!-- MEMO_LIST -->', memo_list));
+      response.end();
+      db.close();
+    });
+  }
 };
 
 function create(request, response){
