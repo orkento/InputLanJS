@@ -1,12 +1,12 @@
 exports.load = function(layout, callback){
   var fs = require('fs');
-  fs.readFile(getLayoutPath(layout), callback);
+  fs.readFile(getLayoutPath(layout), 'utf-8', callback);
 };
 
 exports.getData = function(layout){
   var data = NaN;
   var fs = require('fs');
-  fs.readFile(getLayoutPath(layout), function(error, body){
+  fs.readFile(getLayoutPath(layout), 'utf-8', function(error, body){
     if(error) data = null;
     else      data = body;
   });
