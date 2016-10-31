@@ -9,11 +9,16 @@
     <form name="new_memo" action="memo" method="post">
       <p>
         <p>
-          <textarea name="memo[comment]"></textarea>
+          <label>
+            学習内容
+            <textarea name="memo[comment]"></textarea>
+          </label>
         </p>
         <p>
-          <label>学習開始日</label>
-          <input type="text" name="memo[date]"></input>
+          <label>
+            学習開始日
+            <input type="text" name="memo[date]"></input>
+          </label>
           <input type="submit"></input>
         </p>
       </p>
