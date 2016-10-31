@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>編集</title>
+  </head>
+  <body>
+    <form name="edited_memo" action="edit" method="post">
+      <p>
+        <textarea name="memo[comment]"><!-- comment --></textarea>
+      </p>
+      <p>
+        <input type=text name="memo[date]" value="<!-- start_on -->">
+        </input>
+      </p>
+      <p>
+        <input type="submit" value="Edit"></input>
+      </p>
+    </form>
+    <form name="delete" action="delete" method="post">
+      <input type="submit" value="Delete"></input>
+    </form>
+  </body>
+</html>
