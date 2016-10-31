@@ -36,29 +36,22 @@ function index(request, response){
 
 function show(request, response){
   var layout = require('../modules/layout.js');
-  var page = null, memo = null, load_error = false;
-  var datas = null;
-  var rendering = false;
   
-  layout.load('pages/show', function(error, data){
-    if(error) load_error = true;
-    else      page = data;
-    render();
-  });
-  layout.load('parts/show/memo', function(error, data){
-    if(error) load_error = true;
-    else      memo = data;
-    render();
+  var page_layout_preparation = new Promise(function(resolve, reject){
+    layout.load('pages/show', function(error, data){
+      if(error) reject('no page layout');
+      else      resolve(data);
+    });
   });
   
-  function render(){
-    if(null == page || null == memo || rendering) return;
-    rendering = true;
-    if(load_error){
-      response.writeHead(404, {'Content-Type':'text/html'});
-      return response.end();
-    }
-    
+  var memo_layout_preparation = new Promise(function(resolve, reject){
+    layout.load('parts/show/memo', function(error, data){
+      if(error) reject('no memo layout');
+      else      resolve(data);
+    });
+  });
+  
+  var memo_data_preparation = new Promise(function(resolve, reject){
     var today      = new Date();
     var yesterday  = new Date();
     var last_week  = new Date();
@@ -82,19 +75,44 @@ function show(request, response){
               
     var db = require('../modules/db.js');
     db = db.getDatabase();
-    db.all(query, dates, function(err, rows){
-      var memo_list = '';
-      
-      for(var i = 0; i < rows.length; ++i){
-        memo_list += memo.replace('<!-- start_on -->', rows[i].start_on)
-                         .replace('<!-- comment -->',  rows[i].comment);
+    db.all(query, dates, function(error, rows){
+      if(error){
+        reject('database error');
       }
-      response.writeHead(200, {'Content-Type':'text/html'});
-      response.write(page.replace('<!-- MEMO_LIST -->', memo_list));
-      response.end();
+      else{
+        resolve(rows);
+      }
       db.close();
     });
-  }
+  });
+  
+  var preparations = [
+    page_layout_preparation,
+    memo_layout_preparation,
+    memo_data_preparation
+  ];
+  
+  var success_response = function(results){
+    var memo_list = '';
+    var page = results[0];
+    var memo = results[1];
+    var memo_datas = results[2];
+    
+    for(var i = 0; i < memo_datas.length; ++i){
+      memo_list += memo.replace('<!-- start_on -->', memo_datas[i].start_on)
+                       .replace('<!-- comment -->',  memo_datas[i].comment);
+    }
+    response.writeHead(200, {'Content-Type':'text/html'});
+    response.write(page.replace('<!-- MEMO_LIST -->', memo_list));
+    response.end();
+  };
+  
+  var fail_response = function(reason){
+    response.writeHead(404, {'Content-Type':'text/plain'});
+    return response.end(reason);
+  };
+  
+  Promise.all(preparations).then(success_response, fail_response);
 };
 
 function create(request, response){
