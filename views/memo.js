@@ -1,7 +1,8 @@
 exports.action = {
   'index': index,
   'show': show,
-  'create': create
+  'create': create,
+  'edit': edit
 };
 
 function index(request, response){
@@ -113,7 +114,7 @@ function show(request, response){
   };
   
   Promise.all(preparations).then(success_response, fail_response);
-};
+}
 
 function create(request, response){
   var qs = require('querystring');
@@ -143,7 +144,58 @@ function create(request, response){
       });
     });    
   });
-};
+}
+
+function edit(request, response){
+  
+  var page_layout_preparation = new Promise(function(resolve, reject){
+    var layout = require('../modules/layout.js');
+    layout.load('pages/edit', function(error, data){
+      if(error) reject('no layout');
+      else      resolve(data);
+    });
+  });
+  
+  var memo_data_preparation = new Promise(function(resolve, reject){
+    var url = require(url);
+    url = url.parse(req.url, true);
+    
+    var id = url.query['id'];
+    
+    var db = require('../modules/db.js');
+    db = getDatabase();
+    
+    db.serialize(function(){
+      var query = 'select id, comment, start_on from memo where id = ?';
+      db.get(query, [id], function(error, data){
+        if(error) reject('no data');
+        else      resolve(data);
+      });
+    });
+  });
+  
+  var preparations = [
+    page_layout_preparation,
+    memo_data_preparation
+  ];
+  
+  var success_response = function(results){
+    var memo = results[1];
+    var page = results[0]
+               .replace('<!-- id -->',       memo['id'])
+               .replace('<!-- comment -->',  memo['comment'])
+               .replace('<!-- start_on -->', memo['start_on']);
+    response.writeHead(200, {'Content-Type':'text/html'});
+    return response.end(page);
+  };
+  
+  var fail_response = function(reason){
+    response.writeHead(404, {'Content-Type':'text/plain'});
+    return response.end(reason);
+  };
+  
+  Promise.all(preparations).then(success_response, fail_response);
+}
 
 function getDateString(date){
   var mm = date.getMonth() + 1;

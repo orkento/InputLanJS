@@ -6,11 +6,13 @@
   </head>
   <body>
     <form name="edited_memo" action="edit" method="post">
+      <input type="hidden" name="memo[id]" value="<!-- id -->"></input>
+      <input type="hidden" name="_method" value="PUT"></input>
       <p>
         <textarea name="memo[comment]"><!-- comment --></textarea>
       </p>
       <p>
-        <input type=text name="memo[date]" value="<!-- start_on -->">
+        <input type="text" name="memo[date]" value="<!-- start_on -->">
         </input>
       </p>
       <p>

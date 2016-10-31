@@ -22,12 +22,17 @@ server.on('request', function(req, res){
   }
   
   function responseToGET(){
-    switch(req.url){
+    var url = require('url');
+    url = url.parse(req.url, true);
+    switch(url.pathname){
     case '/inputlan':
       (getAction('memo.js', 'show'))(req, res);
       break;
     case '/index.html':
       (getAction('memo.js', 'index'))(req, res);
+      break;
+    case '/edit':
+      (getAction('memo.js', 'edit'))(req, res);
       break;
     default:
       render404();
