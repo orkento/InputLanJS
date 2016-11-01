@@ -157,14 +157,13 @@ function edit(request, response){
   });
   
   var memo_data_preparation = new Promise(function(resolve, reject){
-    var url = require(url);
-    url = url.parse(req.url, true);
+    var url = require('url');
+    url = url.parse(request.url, true);
     
-    var id = url.query['id'];
+    var id = Number(url.query['id']);
     
     var db = require('../modules/db.js');
-    db = getDatabase();
-    
+    db = db.getDatabase();
     db.serialize(function(){
       var query = 'select id, comment, start_on from memo where id = ?';
       db.get(query, [id], function(error, data){
