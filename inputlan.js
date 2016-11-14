@@ -9,12 +9,16 @@ function getAction(view_name, action_name){
 
 server.on('request', function(req, res){
   
-  switch(req.method){
-  case 'GET':
+  console.log(req.method.toLowerCase());
+  switch(req.method.toLowerCase()){
+  case 'get':
     responseToGET();
     break;
-  case 'POST':
+  case 'post':
     responseToPost();
+    break;
+  case 'put':
+    responseToPut();
     break;
   default:
     render404();
@@ -48,6 +52,16 @@ server.on('request', function(req, res){
     default:
       render404();
       break;
+    }
+  }
+  
+  function responseToPut(){
+    switch(req.url){
+    case '/update':
+      (getAction('memo.js', 'update'))(req, res);
+      break;
+    default:
+      render404();
     }
   }
   

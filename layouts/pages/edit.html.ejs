@@ -5,22 +5,21 @@
     <title>編集</title>
   </head>
   <body>
-    <form name="edited_memo" action="edit" method="post">
-      <input type="hidden" name="memo[id]" value="<!-- id -->"></input>
-      <input type="hidden" name="_method" value="PUT"></input>
+    <form name="edited_memo" action="update" method="post">
+      <input type="hidden" name="_method" value="PUT">
+      <input type="hidden" name="memo[id]" value="<!-- id -->">
       <p>
         <textarea name="memo[comment]"><!-- comment --></textarea>
       </p>
       <p>
         <input type="text" name="memo[date]" value="<!-- start_on -->">
-        </input>
       </p>
       <p>
-        <input type="submit" value="Edit"></input>
+        <input type="submit" value="Edit">
       </p>
     </form>
     <form name="delete" action="delete" method="post">
-      <input type="submit" value="Delete"></input>
+      <input type="submit" value="Delete">
     </form>
   </body>
 </html>

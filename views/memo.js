@@ -2,6 +2,7 @@ exports.action = {
   'index': index,
   'show': show,
   'create': create,
+  'update': update,
   'edit': edit
 };
 
@@ -196,6 +197,35 @@ function edit(request, response){
   Promise.all(preparations).then(success_response, fail_response);
 }
 
+function update(request, response){
+  var qs = require('querystring');
+  
+  var body = '';
+  request.on('data', function(data){
+    body += data;
+  });
+  
+  request.on('end', function(){
+    var post = qs.parse(body);
+    var id = Number(post['memo[id]']);
+    var comment = post['memo[comment]'];
+    var date = post['memo[date]'];
+    date = new Date(date);
+    date = getDateString(date);
+    
+    var db = getDatabase();
+    
+    db.serialize(function(){
+      var query = 'update memo set comment = ?, start_on = ? where id = ?';
+      db.run(query, [comment, date, id], function(){
+        db.close();
+        response.writeHead(301, {Location: '/inputlan'});
+        response.end();
+      });
+    });    
+  });
+}
+
 function getDateString(date){
   var mm = date.getMonth() + 1;
   var dd = date.getDate();
@@ -203,4 +233,9 @@ function getDateString(date){
        + date.getFullYear()
        + '-' + ((mm >= 10) ? mm : ('0' + mm))
        + '-' + ((dd >= 10) ? dd : ('0' + dd));
+}
+
+function getDatabase(){
+  var db = require('..modules/db.js');
+  return db.getDatabase();
 }
